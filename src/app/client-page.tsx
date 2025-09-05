@@ -6,6 +6,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import type { DisciplineCodeMap } from '@/lib/discipline-utils';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 export default function ClientPage({ disciplines, disciplineMap }: { disciplines: Discipline[], disciplineMap: DisciplineCodeMap }) {
   
@@ -32,20 +38,24 @@ export default function ClientPage({ disciplines, disciplineMap }: { disciplines
         </Link>
       </div>
 
-      <div className="space-y-12">
+      <Accordion type="multiple" defaultValue={sortedPeriods} className="w-full space-y-4">
         {sortedPeriods.map((period) => (
-          <div key={period}>
-            <h2 className="text-2xl font-bold font-headline mb-6 border-b pb-2">{period}º Período</h2>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {groupedDisciplines[period].map((discipline) => (
-                <Link key={discipline.discipline_id} href={`/disciplinas/${discipline.discipline_id}`} className="block">
-                  <DisciplineCard discipline={discipline} />
-                </Link>
-              ))}
-            </div>
-          </div>
+          <AccordionItem value={period} key={period} className="border-b-0">
+             <AccordionTrigger className="text-2xl font-bold font-headline mb-2 border-b pb-2 hover:no-underline">
+                {period}º Período
+              </AccordionTrigger>
+            <AccordionContent>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-4">
+                  {groupedDisciplines[period].map((discipline) => (
+                    <Link key={discipline.discipline_id} href={`/disciplinas/${discipline.discipline_id}`} className="block">
+                      <DisciplineCard discipline={discipline} />
+                    </Link>
+                  ))}
+                </div>
+            </AccordionContent>
+          </AccordionItem>
         ))}
-      </div>
+      </Accordion>
     </div>
   );
 }
