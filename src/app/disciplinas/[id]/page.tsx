@@ -19,7 +19,7 @@ async function getDisciplineDetails(id: string): Promise<Discipline | null> {
     const data = await res.json();
     const nameParts = data.name.split(' ');
     const code = nameParts.shift() || '';
-    const name = nameParts.join(' ');
+    const name = data.name; // Use the full name from the API
     const department = code.split('-')[0] || 'Unknown';
     return { ...data, name, code, department };
   } catch (error) {
@@ -38,9 +38,9 @@ async function getDisciplines(): Promise<Discipline[]> {
     return data.map((discipline) => {
       const nameParts = discipline.name.split(' ');
       const code = nameParts[0] || '';
-      const name = nameParts.slice(1).join(' ');
+      const name = discipline.name;
       const department = code.split('-')[0] || 'Unknown';
-      return { ...discipline, name: discipline.name, code, department, discipline_id: discipline.discipline_id };
+      return { ...discipline, name, code, department, discipline_id: discipline.discipline_id };
     });
   } catch (error) {
     console.error(error);
@@ -131,6 +131,8 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     });
   };
 
+  const disciplineName = discipline.name.split(' ').slice(1).join(' ');
+
   return (
     <main className="container mx-auto px-4 py-8 md:py-12">
       <div className="mb-8">
@@ -145,7 +147,7 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-3xl font-bold mb-2">{discipline.code} - {discipline.name.split(' ').slice(1).join(' ')}</CardTitle>
+              <CardTitle className="text-3xl font-bold mb-2">{discipline.code} - {disciplineName}</CardTitle>
               <p className="text-muted-foreground text-lg">
                 {discipline.type} - {discipline.credits} créditos - {discipline.total_hours} horas
               </p>
