@@ -40,7 +40,7 @@ async function getDisciplines(): Promise<Discipline[]> {
       const code = nameParts[0] || '';
       const name = nameParts.slice(1).join(' ');
       const department = code.split('-')[0] || 'Unknown';
-      return { ...discipline, name, code, department, discipline_id: discipline.discipline_id };
+      return { ...discipline, name: discipline.name, code, department, discipline_id: discipline.discipline_id };
     });
   } catch (error) {
     console.error(error);
@@ -126,7 +126,7 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     
     // Check if at least one of the required disciplines has been attended.
     return requiredCodes.some(reqCode => {
-        const reqDiscipline = allDisciplines.find((d) => d.code === reqCode);
+        const reqDiscipline = allDisciplines.find((d) => d.name.startsWith(reqCode + ' '));
         return reqDiscipline?.attended === 'Sim';
     });
   };
@@ -145,7 +145,7 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-3xl font-bold mb-2">{discipline.name}</CardTitle>
+              <CardTitle className="text-3xl font-bold mb-2">{discipline.name.split(' ').slice(1).join(' ')}</CardTitle>
               <p className="text-muted-foreground text-lg">
                 {discipline.type} - {discipline.credits} créditos - {discipline.total_hours} horas
               </p>
