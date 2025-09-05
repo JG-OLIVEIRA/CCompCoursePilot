@@ -37,8 +37,8 @@ async function getDisciplines(): Promise<Discipline[]> {
     const data: Omit<Discipline, 'code' | 'department'>[] = await res.json();
     return data.map((discipline) => {
       const nameParts = discipline.name.split(' ');
-      const code = nameParts.shift() || '';
-      const name = nameParts.join(' ');
+      const code = nameParts[0] || '';
+      const name = nameParts.slice(1).join(' ');
       const department = code.split('-')[0] || 'Unknown';
       return { ...discipline, name, code, department, discipline_id: discipline.discipline_id };
     });
@@ -120,6 +120,7 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     const requiredCodes = description.match(codeRegex);
 
     if (!requiredCodes || requiredCodes.length === 0) {
+      // If no codes are found, we can't determine status, assume not fulfilled for safety.
       return false;
     }
     

@@ -16,10 +16,9 @@ async function getDisciplines(): Promise<Discipline[]> {
     // The API does not provide a separate 'code' or 'department', so we extract it from the 'name'
     return data.map((discipline) => {
       const nameParts = discipline.name.split(' ');
-      const code = nameParts.shift() || '';
-      const name = nameParts.join(' ');
+      const code = nameParts[0] || '';
+      const name = nameParts.slice(1).join(' ');
       const department = code.split('-')[0] || 'Unknown';
-      // The API returns discipline_id with department code, so we extract just the number
       const discipline_id = discipline.discipline_id;
       return { ...discipline, name, code, department, discipline_id };
     });
