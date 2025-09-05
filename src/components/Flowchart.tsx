@@ -56,7 +56,8 @@ const EmptyCell = () => <div className="h-20 w-full" />;
 
 export default function Flowchart({ disciplines }: { disciplines: Discipline[] }) {
   const getDisciplineByCode = (code: string): Discipline | undefined => {
-    return disciplines.find((d) => d.code === code || d.name.startsWith(code + ' '));
+    // Search the original 'name' field from the API, as it's the most reliable source.
+    return disciplines.find((d) => d.name.startsWith(code + ' '));
   };
   
   const prepareDiscipline = (code: string, displayName: string) => {
