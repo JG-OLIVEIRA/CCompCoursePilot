@@ -23,7 +23,7 @@ const FlowchartNode = ({
   return (
     <div
       className={cn(
-        'relative h-20 w-full rounded-lg border-2 border-primary bg-card p-2 text-center shadow-md flex flex-col justify-center flex-shrink-0',
+        'relative h-20 w-full rounded-lg border-2 border-primary bg-card p-2 text-center shadow-md flex flex-col justify-center',
         isAttended && 'border-green-500 bg-green-50/50',
         className
       )}
@@ -53,7 +53,7 @@ const EmptyCell = () => <div className="h-20 w-full flex-shrink-0" />;
 
 export default function Flowchart({ disciplines }: { disciplines: Discipline[] }) {
   const getDisciplineByCode = (code: string) => {
-    return disciplines.find((d) => d.code.includes(code));
+    return disciplines.find((d) => d.code === code);
   };
 
   const disciplineMap = {
@@ -238,5 +238,7 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
             return null;
     }
 }
+
+    
 
     
