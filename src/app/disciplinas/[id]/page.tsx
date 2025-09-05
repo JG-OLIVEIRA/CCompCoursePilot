@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { RequirementLink } from '@/components/RequirementLink';
-import { getDisciplineMap, getDisciplines } from '@/lib/discipline-utils';
+import { getDisciplineMap } from '@/lib/discipline-utils';
 
 async function getDisciplineDetails(id: string): Promise<Discipline | null> {
   try {
@@ -19,10 +19,10 @@ async function getDisciplineDetails(id: string): Promise<Discipline | null> {
       throw new Error(`Falha ao buscar detalhes da disciplina: ${res.statusText}`);
     }
     const data = await res.json();
-    const nameParts = data.name.split(' ');
-    const code = nameParts[0] || '';
-    // Use the full name from the API
-    return { ...data, name: data.name, code, department: code.split('-')[0] || 'Unknown' };
+    const code = data.name.split(' ')[0] || '';
+    // The API returns the full name, which includes the code.
+    // We just need to add the code and department fields.
+    return { ...data, code, department: code.split('-')[0] || 'Unknown' };
   } catch (error) {
     console.error(error);
     return null;
@@ -38,7 +38,12 @@ async function getMultipleDisciplines(ids: string[]): Promise<Discipline[]> {
         .then(res => res.ok ? res.json() : null)
       )
     );
-    return results.filter(Boolean) as Discipline[];
+    // Add code and department to each discipline
+    return results.filter(Boolean).map(d => ({
+      ...d,
+      code: d.name.split(' ')[0] || '',
+      department: (d.name.split(' ')[0] || '').split('-')[0] || 'Unknown'
+    })) as Discipline[];
   } catch (error) {
     console.error('Falha ao buscar múltiplas disciplinas:', error);
     return [];
@@ -122,7 +127,8 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     const requiredCodesInDesc = description.match(codeRegex);
 
     if (!requiredCodesInDesc || requiredCodesInDesc.length === 0) {
-      return false;
+      // This is for requirements like "120 créditos" which don't have a discipline code
+      return false; 
     }
     
     const isAndRequirement = description.includes(' E ');
@@ -130,10 +136,11 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     const fulfilledStatuses = requiredCodesInDesc.map(reqCode => {
         const reqDisciplineId = disciplineMap[reqCode];
         if (!reqDisciplineId) return false;
+        // Since we fetched `requiredDisciplines` with their full data, we can find them here
         const reqDiscipline = requiredDisciplines.find((d) => d.discipline_id === reqDisciplineId);
         return reqDiscipline?.attended === 'Sim';
     });
-
+    
     if (isAndRequirement) {
         return fulfilledStatuses.every(status => status);
     } else {
@@ -141,7 +148,7 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     }
   };
 
-  const disciplineName = discipline.name.split(' ').slice(1).join(' ');
+  const disciplineName = discipline.name.replace(discipline.code, '').trim();
 
   return (
     <main className="container mx-auto px-4 py-8 md:py-12">
