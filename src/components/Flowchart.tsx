@@ -99,6 +99,8 @@ const EmptyCell = () => <div className="h-20 w-full" />;
 
 export default function Flowchart({ disciplines }: { disciplines: Discipline[] }) {
   const getDisciplineByCode = (code: string): Discipline | undefined => {
+    // Search by checking if the original 'name' field starts with the code.
+    // This is more robust than relying on a potentially modified 'code' field.
     return disciplines.find((d) => d.name.startsWith(code));
   };
   

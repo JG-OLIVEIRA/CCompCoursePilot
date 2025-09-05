@@ -17,11 +17,9 @@ async function getDisciplines(): Promise<Discipline[]> {
     return data.map((discipline) => {
       const nameParts = discipline.name.split(' ');
       const code = nameParts[0] || '';
-      const name = nameParts.slice(1).join(' ');
       const department = code.split('-')[0] || 'Unknown';
-      const discipline_id = discipline.discipline_id;
-      // Return the original name field as is, but also provide separated code and name
-      return { ...discipline, name: discipline.name, code, department, discipline_id };
+      // Return the original name field as is, and also provide separated code and department
+      return { ...discipline, code, department };
     });
   } catch (error) {
     console.error(error);
