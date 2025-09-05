@@ -49,17 +49,50 @@ async function getDisciplines(): Promise<Discipline[]> {
 }
 
 function toTitleCase(str: string): string {
-    if (!str) return '';
-    return str.replace(/\w\S*/g, (txt) => {
-      const lower = txt.toLowerCase();
-      // Keep small connecting words in lowercase, unless it's the first word.
-      if (['de', 'da', 'do', 'dos', 'das'].includes(lower) && str.toLowerCase().indexOf(lower) > 0) {
-        return lower;
+  if (!str) return '';
+  return str.replace(/\w\S*/g, (txt) => {
+    const lower = txt.toLowerCase();
+    // Keep small connecting words in lowercase, unless it's the first word.
+    if (['de', 'da', 'do', 'dos', 'das'].includes(lower) && str.toLowerCase().indexOf(lower) > 0) {
+      return lower;
+    }
+    return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
+  });
+}
+
+const dayMapping: { [key: string]: string } = {
+  SEG: 'Segunda',
+  TER: 'Terça',
+  QUA: 'Quarta',
+  QUI: 'Quinta',
+  SEX: 'Sexta',
+  SAB: 'Sábado',
+};
+
+function formatTimes(times: string) {
+  if (!times) return null;
+
+  const parts = times.split(' ');
+  const schedule: { [key: string]: string[] } = {};
+  let currentDay = '';
+
+  parts.forEach((part) => {
+    if (dayMapping[part]) {
+      currentDay = dayMapping[part];
+      if (!schedule[currentDay]) {
+        schedule[currentDay] = [];
       }
-      return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
-    });
-  }
-  
+    } else if (currentDay) {
+      schedule[currentDay].push(part);
+    }
+  });
+
+  return Object.entries(schedule).map(([day, timeSlots]) => (
+    <div key={day}>
+      <span className="font-semibold">{day}:</span> {timeSlots.join(', ')}
+    </div>
+  ));
+}
 
 export default async function DisciplineDetailPage({ params }: { params: { id: string } }) {
   const [discipline, allDisciplines] = await Promise.all([
@@ -87,15 +120,12 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     const requiredCodes = description.match(codeRegex);
 
     if (!requiredCodes || requiredCodes.length === 0) {
-      // If no codes are found, it might be a credit requirement or something else. Default to not fulfilled.
-      // This can be improved with more specific logic if other requirement types exist.
       return false;
     }
-
+    
     // Check if at least one of the required disciplines has been attended.
     return requiredCodes.some(reqCode => {
-        // Find a discipline in the complete list that has a matching code.
-        const reqDiscipline = allDisciplines.find((d) => d.name.includes(reqCode));
+        const reqDiscipline = allDisciplines.find((d) => d.code === reqCode);
         return reqDiscipline?.attended === 'Sim';
     });
   };
@@ -173,7 +203,7 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
                       <TableRow key={cls.number}>
                         <TableCell>{cls.number}</TableCell>
                         <TableCell>{toTitleCase(cls.teacher)}</TableCell>
-                        <TableCell>{cls.times}</TableCell>
+                        <TableCell>{formatTimes(cls.times)}</TableCell>
                         <TableCell>{cls.offered_uerj}</TableCell>
                         <TableCell>{cls.occupied_uerj}</TableCell>
                       </TableRow>
