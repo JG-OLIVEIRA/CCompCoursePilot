@@ -14,7 +14,27 @@ const FlowchartNode = ({
   attended?: boolean;
   className?: string;
 }) => {
-  if (!discipline || !discipline.discipline_id) {
+  if (!discipline) {
+    return <div className="h-20 w-full" />;
+  }
+
+  // Handle electives
+  if (discipline.name.startsWith('Eletiva')) {
+    return (
+      <Link href="/disciplinas/eletivas" className="block w-full h-full">
+        <div
+          className={cn(
+            'relative h-full w-full rounded-lg border-2 border-dashed border-muted bg-card/50 p-2 text-center flex flex-col justify-center min-h-[5rem] transition-all duration-300 hover:shadow-lg hover:border-primary',
+            className
+          )}
+        >
+          <p className="font-semibold text-[10px] md:text-sm leading-tight text-muted-foreground">{discipline.name}</p>
+        </div>
+      </Link>
+    );
+  }
+
+  if (!discipline.discipline_id) {
     const nodeContent = (
       <div
         className={cn(
@@ -22,16 +42,14 @@ const FlowchartNode = ({
           className
         )}
       >
-        <p className="font-semibold text-[10px] md:text-sm leading-tight text-muted-foreground">{discipline?.name || 'Vago'}</p>
+        <p className="font-semibold text-[10px] md:text-sm leading-tight text-muted-foreground">{discipline.name || 'Vago'}</p>
       </div>
     );
-    // If it's an elective or empty cell without a specific page, don't wrap with Link
     return nodeContent;
   }
 
   const isAttended = attended ?? discipline.attended === 'Sim';
 
-  // Use a displayName if available, otherwise extract from the full name
   const displayName = (discipline as any).displayName || discipline.name.split(' ').slice(1).join(' ');
 
   return (
@@ -56,7 +74,6 @@ const EmptyCell = () => <div className="h-20 w-full" />;
 
 export default function Flowchart({ disciplines }: { disciplines: Discipline[] }) {
   const getDisciplineByCode = (code: string): Discipline | undefined => {
-    // Search the original 'name' field from the API, as it's the most reliable source.
     return disciplines.find((d) => d.name.startsWith(code + ' '));
   };
   
@@ -127,7 +144,7 @@ export default function Flowchart({ disciplines }: { disciplines: Discipline[] }
 
   return (
     <div className="p-4 bg-card rounded-lg shadow-md mb-8">
-        <h2 className="text-2xl font-bold text-center mb-6">Fluxograma do Curso de Ciência da Computação</h2>
+        <h2 className="text-2xl font-bold text-center mb-6 font-headline">Fluxograma do Curso de Ciência da Computação</h2>
         
         <div className="flex w-full overflow-x-auto">
             <div className="flex flex-1 space-x-1 md:space-x-2 min-w-[1200px]">
@@ -248,9 +265,3 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
             return null;
     }
 }
-
-    
-
-    
-
-    
