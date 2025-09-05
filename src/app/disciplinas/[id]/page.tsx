@@ -145,7 +145,7 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-3xl font-bold mb-2">{discipline.name.split(' ').slice(1).join(' ')}</CardTitle>
+              <CardTitle className="text-3xl font-bold mb-2">{discipline.code} - {discipline.name.split(' ').slice(1).join(' ')}</CardTitle>
               <p className="text-muted-foreground text-lg">
                 {discipline.type} - {discipline.credits} créditos - {discipline.total_hours} horas
               </p>
