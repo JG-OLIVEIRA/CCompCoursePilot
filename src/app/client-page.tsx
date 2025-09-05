@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { Discipline } from '@/types/discipline';
 import { Input } from '@/components/ui/input';
 import { DisciplineCard } from '@/components/DisciplineCard';
 import { Search, BookCopy } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function ClientPage({ disciplines }: { disciplines: Discipline[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [codeFilter, setCodeFilter] = useState('');
+  const [activePeriods, setActivePeriods] = useState<string[]>([]);
 
   const filteredDisciplines = useMemo(() => {
     return disciplines.filter((discipline) => {
@@ -19,6 +21,32 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
       return nameMatch && codeMatch;
     });
   }, [disciplines, searchTerm, codeFilter]);
+
+  const groupedDisciplines = useMemo(() => {
+    return filteredDisciplines.reduce((acc, discipline) => {
+      const period = discipline.period || 'Sem Período';
+      if (!acc[period]) {
+        acc[period] = [];
+      }
+      acc[period].push(discipline);
+      return acc;
+    }, {} as Record<string, Discipline[]>);
+  }, [filteredDisciplines]);
+
+  const sortedPeriods = useMemo(() => {
+    return Object.keys(groupedDisciplines).sort((a, b) => {
+      if (a === 'Sem Período') return 1;
+      if (b === 'Sem Período') return -1;
+      if (a === '-') return 1;
+      if (b === '-') return -1;
+      return parseInt(a, 10) - parseInt(b, 10);
+    });
+  }, [groupedDisciplines]);
+
+  useEffect(() => {
+    // Expand all periods by default when component mounts or groups change
+    setActivePeriods(sortedPeriods);
+  }, [sortedPeriods]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -60,14 +88,30 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
       </div>
 
       {filteredDisciplines.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {filteredDisciplines.map((discipline) => (
-            <DisciplineCard key={discipline.discipline_id} discipline={discipline} />
+        <Accordion
+          type="multiple"
+          value={activePeriods}
+          onValueChange={setActivePeriods}
+          className="w-full space-y-4"
+        >
+          {sortedPeriods.map((period) => (
+            <AccordionItem value={period} key={period} className="rounded-lg bg-card shadow-md">
+              <AccordionTrigger className="px-6 py-4 font-headline text-2xl font-semibold hover:no-underline">
+                {period === '-' ? 'Eletivas' : `${period}º Período`}
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                  {groupedDisciplines[period].map((discipline) => (
+                    <DisciplineCard key={discipline.discipline_id} discipline={discipline} />
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
           ))}
-        </div>
+        </Accordion>
       ) : (
         <div className="rounded-lg bg-card px-6 py-16 text-center shadow-md">
-          <h2 className="font-headline text-2xl font-semibold">Nenhum Curso Encontrado</h2>
+          <h2 className="font-headline text-2xl font-semibold">Nenhuma disciplina encontrada</h2>
           <p className="mt-2 text-muted-foreground">Tente ajustar seus termos de pesquisa ou filtro.</p>
         </div>
       )}
