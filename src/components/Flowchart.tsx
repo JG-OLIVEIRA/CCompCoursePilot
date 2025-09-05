@@ -32,7 +32,7 @@ const FlowchartNode = ({
   const isAttended = attended ?? discipline.attended === 'Sim';
 
   return (
-    <Link href={`/disciplinas/${discipline.discipline_id}`} className="flex-shrink-0 w-full h-full">
+    <Link href={`/disciplinas/${discipline.discipline_id}`} className="block w-full h-full">
       <div
         className={cn(
           'relative h-full w-full rounded-lg border-2 border-primary bg-card p-2 text-center shadow-md flex flex-col justify-center transition-all duration-300 hover:shadow-xl cursor-pointer min-h-[5rem]',
@@ -49,7 +49,7 @@ const FlowchartNode = ({
   );
 };
 
-const EmptyCell = () => <div className="h-20 w-full flex-shrink-0" />;
+const EmptyCell = () => <div className="h-20 w-full" />;
 
 export default function Flowchart({ disciplines }: { disciplines: Discipline[] }) {
   const getDisciplineByCode = (code: string): Discipline | undefined => {
@@ -116,11 +116,11 @@ export default function Flowchart({ disciplines }: { disciplines: Discipline[] }
   const periods = [...Array(8)].map((_, i) => i + 1);
 
   return (
-    <div className="p-4 bg-card rounded-lg shadow-md mb-8 overflow-x-auto">
+    <div className="p-4 bg-card rounded-lg shadow-md mb-8">
         <h2 className="text-2xl font-bold text-center mb-2">Fluxograma do Curso de Ciência da Computação</h2>
         <h3 className="text-lg text-muted-foreground text-center mb-6">Unidade Responsável: Instituto de Matemática e Estatística</h3>
         
-        <div className="flex w-full min-w-[1200px]">
+        <div className="flex w-full">
             <div className="flex flex-1 space-x-1 md:space-x-2">
                 {periods.map((periodIndex) => (
                     <div key={periodIndex} className="flex flex-col items-center space-y-2 md:space-y-4 flex-1 min-w-0">
