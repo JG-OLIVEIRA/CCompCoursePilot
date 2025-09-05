@@ -14,7 +14,7 @@ const FlowchartNode = ({
   className?: string;
 }) => {
   if (!discipline) {
-    return <div className="h-20 w-48" />;
+    return <div className="h-20 w-32 md:w-48 flex-shrink-0" />;
   }
 
   const isAttended = attended ?? discipline.attended;
@@ -22,12 +22,12 @@ const FlowchartNode = ({
   return (
     <div
       className={cn(
-        'relative h-20 w-48 rounded-lg border-2 border-primary bg-card p-2 text-center shadow-md flex flex-col justify-center',
+        'relative h-20 w-32 md:w-48 rounded-lg border-2 border-primary bg-card p-2 text-center shadow-md flex flex-col justify-center flex-shrink-0',
         isAttended && 'border-green-500 bg-green-50/50',
         className
       )}
     >
-      <p className="font-semibold text-sm">{discipline.name}</p>
+      <p className="font-semibold text-xs md:text-sm">{discipline.name}</p>
       <p className="font-mono text-xs text-muted-foreground">{discipline.code}</p>
       {isAttended && (
         <div className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-green-500" />
@@ -49,7 +49,7 @@ const VerticalArrow = () => (
 );
 
 
-const EmptyCell = () => <div className="h-20 w-48" />;
+const EmptyCell = () => <div className="h-20 w-32 md:w-48 flex-shrink-0" />;
 
 export default function Flowchart({ disciplines }: { disciplines: Discipline[] }) {
   const getDisciplineByCode = (code: string) => {
@@ -115,35 +115,21 @@ export default function Flowchart({ disciplines }: { disciplines: Discipline[] }
   const periods = [...Array(8)].map((_, i) => i + 1);
 
   return (
-    <div className="p-4 bg-card rounded-lg shadow-md mb-8">
+    <div className="p-4 bg-card rounded-lg shadow-md mb-8 overflow-x-auto">
         <h2 className="text-2xl font-bold text-center mb-2">Fluxograma do Curso de Ciência da Computação</h2>
         <h3 className="text-lg text-muted-foreground text-center mb-6">Unidade Responsável: Instituto de Matemática e Estatística</h3>
         
-        {/* Desktop View */}
-        <div className="hidden md:flex justify-center overflow-x-auto">
-            <div className="inline-flex space-x-4">
+        <div className="flex justify-center">
+            <div className="inline-flex space-x-2 md:space-x-4">
                 {periods.map((periodIndex) => (
-                    <div key={periodIndex} className="flex flex-col items-center space-y-4">
-                        <h3 className="text-xl font-bold">{periodIndex}º Período</h3>
-                        <div className="flex flex-col space-y-4">
+                    <div key={periodIndex} className="flex flex-col items-center space-y-2 md:space-y-4">
+                        <h3 className="text-lg md:text-xl font-bold">{periodIndex}º Período</h3>
+                        <div className="flex flex-col space-y-2 md:space-y-4">
                             {renderPeriod(periodIndex, disciplineMap)}
                         </div>
                     </div>
                 ))}
             </div>
-        </div>
-
-        {/* Mobile View */}
-        <div className="md:hidden">
-            {periods.map((periodIndex) => (
-                <div key={periodIndex} className="mb-8">
-                    <h3 className="text-xl font-bold text-center mb-4">{periodIndex}º Período</h3>
-                    <div className="flex flex-col items-center space-y-4">
-                        {renderPeriod(periodIndex, disciplineMap)}
-                    </div>
-                    {periodIndex < periods.length && <VerticalArrow />}
-                </div>
-            ))}
         </div>
     </div>
   );
