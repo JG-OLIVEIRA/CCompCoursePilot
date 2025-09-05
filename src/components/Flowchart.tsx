@@ -127,8 +127,7 @@ export default function Flowchart({ disciplines }: { disciplines: Discipline[] }
 
   return (
     <div className="p-4 bg-card rounded-lg shadow-md mb-8">
-        <h2 className="text-2xl font-bold text-center mb-2">Fluxograma do Curso de Ciência da Computação</h2>
-        <h3 className="text-lg text-muted-foreground text-center mb-6">Unidade Responsável: Instituto de Matemática e Estatística</h3>
+        <h2 className="text-2xl font-bold text-center mb-6">Fluxograma do Curso de Ciência da Computação</h2>
         
         <div className="flex w-full overflow-x-auto">
             <div className="flex flex-1 space-x-1 md:space-x-2 min-w-[1200px]">
@@ -249,6 +248,8 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
             return null;
     }
 }
+
+    
 
     
 
