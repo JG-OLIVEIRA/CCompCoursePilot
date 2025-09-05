@@ -7,7 +7,7 @@ import { DisciplineCard } from '@/components/DisciplineCard';
 import { Search, BookCopy } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Flowchart from '@/components/Flowchart';
-
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function ClientPage({ disciplines }: { disciplines: Discipline[] }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,6 +44,22 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
     // Expand all periods by default when component mounts or groups change
     setActivePeriods(sortedPeriods);
   }, [sortedPeriods]);
+  
+  const { mandatoryCredits, electiveCredits } = useMemo(() => {
+    return disciplines.reduce(
+      (acc, discipline) => {
+        if (discipline.attended === 'Sim') {
+          if (discipline.type === 'Obrigatória') {
+            acc.mandatoryCredits += parseInt(discipline.credits, 10) || 0;
+          } else if (discipline.type.startsWith('E.')) {
+            acc.electiveCredits += parseInt(discipline.credits, 10) || 0;
+          }
+        }
+        return acc;
+      },
+      { mandatoryCredits: 0, electiveCredits: 0 }
+    );
+  }, [disciplines]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -56,6 +72,22 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
           Seu navegador para cursos universitários. Pesquise e filtre as disciplinas para encontrar o que você procura.
         </p>
       </header>
+      
+      <Card className="mb-8">
+        <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
+                <div className="p-4 rounded-lg bg-card shadow-md">
+                    <h3 className="font-headline text-xl font-semibold text-primary">Créditos em Disciplinas Obrigatórias</h3>
+                    <p className="font-body text-3xl font-bold">{mandatoryCredits}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-card shadow-md">
+                    <h3 className="font-headline text-xl font-semibold text-primary">Créditos em Disciplinas Eletivas</h3>
+                    <p className="font-body text-3xl font-bold">{electiveCredits}</p>
+                </div>
+            </div>
+        </CardContent>
+      </Card>
+
 
       <Flowchart disciplines={disciplines} />
 
