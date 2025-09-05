@@ -73,7 +73,9 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
         </p>
       </header>
       
-      <Card className="mb-8">
+      <Flowchart disciplines={disciplines} />
+
+      <Card className="my-8">
         <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
                 <div className="p-4 rounded-lg bg-card shadow-md">
@@ -88,8 +90,6 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
         </CardContent>
       </Card>
 
-
-      <Flowchart disciplines={disciplines} />
 
       <div className="mb-8 rounded-lg bg-card p-6 shadow-md">
         <div className="grid grid-cols-1 gap-6">
