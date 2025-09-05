@@ -9,18 +9,13 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 
 export default function ClientPage({ disciplines }: { disciplines: Discipline[] }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [codeFilter, setCodeFilter] = useState('');
   const [activePeriods, setActivePeriods] = useState<string[]>([]);
 
   const filteredDisciplines = useMemo(() => {
     return disciplines.filter((discipline) => {
-      const nameMatch =
-        discipline.name && discipline.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const codeMatch =
-        discipline.code && discipline.code.toLowerCase().includes(codeFilter.toLowerCase());
-      return nameMatch && codeMatch;
+      return discipline.name && discipline.name.toLowerCase().includes(searchTerm.toLowerCase());
     });
-  }, [disciplines, searchTerm, codeFilter]);
+  }, [disciplines, searchTerm]);
 
   const groupedDisciplines = useMemo(() => {
     return filteredDisciplines.reduce((acc, discipline) => {
@@ -61,7 +56,7 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
       </header>
 
       <div className="mb-8 rounded-lg bg-card p-6 shadow-md">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -71,17 +66,6 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 text-base"
               aria-label="Pesquisar por nome"
-            />
-          </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Filtrar por código do curso..."
-              value={codeFilter}
-              onChange={(e) => setCodeFilter(e.target.value)}
-              className="pl-10 text-base"
-              aria-label="Filtrar por código"
             />
           </div>
         </div>
