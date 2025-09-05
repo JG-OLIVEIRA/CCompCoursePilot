@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { DisciplineCard } from '@/components/DisciplineCard';
 import { Search, BookCopy } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import Flowchart from '@/components/Flowchart';
+
 
 export default function ClientPage({ disciplines }: { disciplines: Discipline[] }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,6 +56,8 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
           Seu navegador para cursos universitários. Pesquise e filtre as disciplinas para encontrar o que você procura.
         </p>
       </header>
+
+      <Flowchart disciplines={disciplines} />
 
       <div className="mb-8 rounded-lg bg-card p-6 shadow-md">
         <div className="grid grid-cols-1 gap-6">
