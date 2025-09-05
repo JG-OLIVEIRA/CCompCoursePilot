@@ -14,21 +14,21 @@ const FlowchartNode = ({
   className?: string;
 }) => {
   if (!discipline) {
-    return <div className="h-20 w-32 md:w-48 flex-shrink-0" />;
+    return <div className="h-20 w-full flex-shrink" />;
   }
 
-  const isAttended = attended ?? discipline.attended;
+  const isAttended = attended ?? discipline.attended === 'Sim';
 
   return (
     <div
       className={cn(
-        'relative h-20 w-32 md:w-48 rounded-lg border-2 border-primary bg-card p-2 text-center shadow-md flex flex-col justify-center flex-shrink-0',
+        'relative h-20 w-full rounded-lg border-2 border-primary bg-card p-2 text-center shadow-md flex flex-col justify-center flex-shrink',
         isAttended && 'border-green-500 bg-green-50/50',
         className
       )}
     >
       <p className="font-semibold text-xs md:text-sm">{discipline.name}</p>
-      <p className="font-mono text-xs text-muted-foreground">{discipline.code}</p>
+      <p className="font-mono text-[10px] md:text-xs text-muted-foreground">{discipline.code}</p>
       {isAttended && (
         <div className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-green-500" />
       )}
@@ -49,7 +49,7 @@ const VerticalArrow = () => (
 );
 
 
-const EmptyCell = () => <div className="h-20 w-32 md:w-48 flex-shrink-0" />;
+const EmptyCell = () => <div className="h-20 w-full flex-shrink" />;
 
 export default function Flowchart({ disciplines }: { disciplines: Discipline[] }) {
   const getDisciplineByCode = (code: string) => {
@@ -115,16 +115,16 @@ export default function Flowchart({ disciplines }: { disciplines: Discipline[] }
   const periods = [...Array(8)].map((_, i) => i + 1);
 
   return (
-    <div className="p-4 bg-card rounded-lg shadow-md mb-8 overflow-x-auto">
+    <div className="p-4 bg-card rounded-lg shadow-md mb-8">
         <h2 className="text-2xl font-bold text-center mb-2">Fluxograma do Curso de Ciência da Computação</h2>
         <h3 className="text-lg text-muted-foreground text-center mb-6">Unidade Responsável: Instituto de Matemática e Estatística</h3>
         
-        <div className="flex justify-center">
-            <div className="inline-flex space-x-2 md:space-x-4">
+        <div className="flex w-full">
+            <div className="flex flex-1 space-x-1 md:space-x-2">
                 {periods.map((periodIndex) => (
-                    <div key={periodIndex} className="flex flex-col items-center space-y-2 md:space-y-4">
-                        <h3 className="text-lg md:text-xl font-bold">{periodIndex}º Período</h3>
-                        <div className="flex flex-col space-y-2 md:space-y-4">
+                    <div key={periodIndex} className="flex flex-col items-center space-y-2 md:space-y-4 flex-1 min-w-0">
+                        <h3 className="text-sm md:text-lg font-bold whitespace-nowrap">{periodIndex}º Período</h3>
+                        <div className="flex flex-col space-y-2 md:space-y-4 w-full">
                             {renderPeriod(periodIndex, disciplineMap)}
                         </div>
                     </div>
@@ -141,11 +141,11 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
         case 1:
             return (
                 <>
-                    <FlowchartNode discipline={disciplineMap['IME03-10814']} attended={disciplineMap['IME03-10814']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME01-04827']} attended={disciplineMap['IME01-04827']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME02-10815']} attended={disciplineMap['IME02-10815']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME06-10816']} attended={disciplineMap['IME06-10816']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10817']} attended={disciplineMap['IME04-10817']?.attended === 'Sim'} />
+                    <FlowchartNode discipline={disciplineMap['IME03-10814']} />
+                    <FlowchartNode discipline={disciplineMap['IME01-04827']} />
+                    <FlowchartNode discipline={disciplineMap['IME02-10815']} />
+                    <FlowchartNode discipline={disciplineMap['IME06-10816']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10817']} />
                     <EmptyCell />
                     <EmptyCell />
                 </>
@@ -153,72 +153,72 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
         case 2:
             return (
                 <>
-                    <FlowchartNode discipline={disciplineMap['IME02-10818']} attended={disciplineMap['IME02-10818']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME01-6766']} attended={disciplineMap['IME01-6766']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME05-10819']} attended={disciplineMap['IME05-10819']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10820']} attended={disciplineMap['IME04-10820']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10821']} attended={disciplineMap['IME04-10821']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['FIS01-10982']} attended={disciplineMap['FIS01-10982']?.attended === 'Sim'} />
+                    <FlowchartNode discipline={disciplineMap['IME02-10818']} />
+                    <FlowchartNode discipline={disciplineMap['IME01-6766']} />
+                    <FlowchartNode discipline={disciplineMap['IME05-10819']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10820']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10821']} />
+                    <FlowchartNode discipline={disciplineMap['FIS01-10982']} />
                     <EmptyCell />
                 </>
             );
         case 3:
             return (
                 <>
-                    <FlowchartNode discipline={disciplineMap['ILE02-10822']} attended={disciplineMap['ILE02-10822']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME01-06767']} attended={disciplineMap['IME01-06767']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10823']} attended={disciplineMap['IME04-10823']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME02-10824']} attended={disciplineMap['IME02-10824']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10825']} attended={disciplineMap['IME04-10825']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10826']} attended={disciplineMap['IME04-10826']?.attended === 'Sim'} />
+                    <FlowchartNode discipline={disciplineMap['ILE02-10822']} />
+                    <FlowchartNode discipline={disciplineMap['IME01-06767']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10823']} />
+                    <FlowchartNode discipline={disciplineMap['IME02-10824']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10825']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10826']} />
                     <EmptyCell />
                 </>
             );
         case 4:
             return (
                 <>
-                    <FlowchartNode discipline={disciplineMap['IME04-10827']} attended={disciplineMap['IME04-10827']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME01-10828']} attended={disciplineMap['IME01-10828']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-11311']} attended={disciplineMap['IME04-11311']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10830']} attended={disciplineMap['IME04-10830']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10831']} attended={disciplineMap['IME04-10831']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['FIS03-10983']} attended={disciplineMap['FIS03-10983']?.attended === 'Sim'} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10827']} />
+                    <FlowchartNode discipline={disciplineMap['IME01-10828']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-11311']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10830']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10831']} />
+                    <FlowchartNode discipline={disciplineMap['FIS03-10983']} />
                     <EmptyCell />
                </>
             );
         case 5:
             return (
                 <>
-                    <FlowchartNode discipline={disciplineMap['IME04-10834']} attended={disciplineMap['IME04-10834']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10832']} attended={disciplineMap['IME04-10832']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-11312']} attended={disciplineMap['IME04-11312']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10833']} attended={disciplineMap['IME04-10833']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10835']} attended={disciplineMap['IME04-10835']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10836']} attended={disciplineMap['IME04-10836']?.attended === 'Sim'} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10834']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10832']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-11312']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10833']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10835']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10836']} />
                     <FlowchartNode discipline={disciplineMap['IME-Eletiva-Basica']} attended={false} />
                 </>
             );
         case 6:
             return (
                 <>
-                    <FlowchartNode discipline={disciplineMap['IME06-10837']} attended={disciplineMap['IME06-10837']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10838']} attended={disciplineMap['IME04-10838']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10839']} attended={disciplineMap['IME04-10839']?.attended === 'Sim'} />
+                    <FlowchartNode discipline={disciplineMap['IME06-10837']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10838']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10839']} />
                     <FlowchartNode discipline={disciplineMap['IME-Eletiva-I']} attended={false} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10840']} attended={disciplineMap['IME04-10840']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10841']} attended={disciplineMap['IME04-10841']?.attended === 'Sim'} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10840']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10841']} />
                     <EmptyCell />
                 </>
             );
         case 7:
             return (
                 <>
-                    <FlowchartNode discipline={disciplineMap['IME04-10842']} attended={disciplineMap['IME04-10842']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10843']} attended={disciplineMap['IME04-10843']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10844']} attended={disciplineMap['IME04-10844']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10845']} attended={disciplineMap['IME04-10845']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10846']} attended={disciplineMap['IME04-10846']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10847']} attended={disciplineMap['IME04-10847']?.attended === 'Sim'} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10842']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10843']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10844']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10845']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10846']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10847']} />
                     <EmptyCell />
                 </>
             );
@@ -227,8 +227,8 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
                 <>
                     <FlowchartNode discipline={disciplineMap['IME-Eletiva-II']} attended={false} />
                     <FlowchartNode discipline={disciplineMap['IME-Eletiva-III']} attended={false} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10848']} attended={disciplineMap['IME04-10848']?.attended === 'Sim'} />
-                    <FlowchartNode discipline={disciplineMap['IME04-10849']} attended={disciplineMap['IME04-10849']?.attended === 'Sim'} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10848']} />
+                    <FlowchartNode discipline={disciplineMap['IME04-10849']} />
                     <FlowchartNode discipline={disciplineMap['IME-Eletiva-IV']} attended={false} />
                     <EmptyCell />
                     <EmptyCell />
