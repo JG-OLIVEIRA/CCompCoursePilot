@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Discipline } from '@/types/discipline';
@@ -14,7 +15,7 @@ const FlowchartNode = ({
   className?: string;
 }) => {
   if (!discipline) {
-    return <div className="h-20 w-full flex-shrink" />;
+    return <div className="h-20 w-full flex-shrink-0" />;
   }
 
   const isAttended = attended ?? discipline.attended === 'Sim';
@@ -48,7 +49,7 @@ const VerticalArrow = () => (
 );
 
 
-const EmptyCell = () => <div className="h-20 w-full flex-shrink" />;
+const EmptyCell = () => <div className="h-20 w-full flex-shrink-0" />;
 
 export default function Flowchart({ disciplines }: { disciplines: Discipline[] }) {
   const getDisciplineByCode = (code: string) => {
@@ -66,7 +67,7 @@ export default function Flowchart({ disciplines }: { disciplines: Discipline[] }
     'IME-Eletiva-II': { name: 'Eletiva II', code: 'IME' },
 
     'IME01-04827': getDisciplineByCode('IME01-04827'), // Cálculo I
-    'IME01-6766': getDisciplineByCode('IME01-6766'), // Cálculo II
+    'IME01-10819': getDisciplineByCode('IME01-10819'), // Cálculo II
     'IME01-06767': getDisciplineByCode('IME01-06767'), // Cálculo III
     'IME01-10828': getDisciplineByCode('IME01-10828'), // Cálculo IV
     'IME04-10832': getDisciplineByCode('IME04-10832'), // Banco de Dados I
@@ -153,7 +154,7 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
             return (
                 <>
                     <FlowchartNode discipline={disciplineMap['IME02-10818']} />
-                    <FlowchartNode discipline={disciplineMap['IME01-6766']} />
+                    <FlowchartNode discipline={disciplineMap['IME01-10819']} />
                     <FlowchartNode discipline={disciplineMap['IME05-10819']} />
                     <FlowchartNode discipline={disciplineMap['IME04-10820']} />
                     <FlowchartNode discipline={disciplineMap['IME04-10821']} />
@@ -237,3 +238,5 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
             return null;
     }
 }
+
+    
