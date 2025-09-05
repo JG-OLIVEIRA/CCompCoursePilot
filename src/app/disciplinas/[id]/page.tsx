@@ -7,6 +7,7 @@ import { AlertCircle, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { RequirementLink } from '@/components/RequirementLink';
 
 async function getDisciplineDetails(id: string): Promise<Discipline | null> {
   try {
@@ -116,13 +117,25 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     const requiredCodesInDesc = description.match(codeRegex);
 
     if (!requiredCodesInDesc || requiredCodesInDesc.length === 0) {
+      // If no specific discipline code is mentioned, we can't determine fulfillment status
+      // This could be for requirements like "Credit lock"
       return false;
     }
     
-    return requiredCodesInDesc.some(reqCode => {
+    // For 'E' type (AND), all must be fulfilled
+    // For 'OU' type (OR), at least one must be fulfilled
+    const isAndRequirement = description.includes(' E ');
+
+    const fulfilledCodes = requiredCodesInDesc.map(reqCode => {
         const reqDiscipline = requiredDisciplines.find((d) => d.name.startsWith(reqCode));
         return reqDiscipline?.attended === 'Sim';
     });
+
+    if (isAndRequirement) {
+        return fulfilledCodes.every(status => status);
+    } else {
+        return fulfilledCodes.some(status => status);
+    }
   };
 
   const disciplineName = discipline.name.split(' ').slice(1).join(' ');
@@ -158,23 +171,29 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
               <ul className="list-none pl-0 space-y-3">
                 {discipline.requirements.map((req, index) => {
                   const isFulfilled = checkRequirementStatus(req.description);
+                  const hasDisciplineCode = /[A-Z]{3}\d{2}-\d{5}/g.test(req.description);
+
                   return (
                     <li key={index} className="flex items-center gap-3 p-3 rounded-md bg-muted/50">
                       <Badge variant={req.type === 'Pré-Requisito' ? 'destructive' : 'secondary'}>{req.type}</Badge>
-                      <span className="flex-grow">{req.description}</span>
-                      <div className="flex items-center gap-2">
-                        {isFulfilled ? (
-                          <>
-                            <CheckCircle className="h-5 w-5 text-green-500" />
-                            <span className="text-sm font-medium text-green-600">Cumprido</span>
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="h-5 w-5 text-red-500" />
-                            <span className="text-sm font-medium text-red-600">Não Cumprido</span>
-                          </>
-                        )}
+                      <div className="flex-grow">
+                        <RequirementLink description={req.description} />
                       </div>
+                      {hasDisciplineCode && (
+                        <div className="flex items-center gap-2">
+                          {isFulfilled ? (
+                            <>
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                              <span className="text-sm font-medium text-green-600">Cumprido</span>
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="h-5 w-5 text-red-500" />
+                              <span className="text-sm font-medium text-red-600">Não Cumprido</span>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </li>
                   );
                 })}
