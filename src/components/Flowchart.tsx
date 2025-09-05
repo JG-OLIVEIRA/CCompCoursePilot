@@ -5,6 +5,31 @@ import type { Discipline } from '@/types/discipline';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
+const EletivaNode = ({
+  name,
+  isAttended,
+}: {
+  name: string;
+  isAttended: boolean;
+}) => (
+  <Link href="/disciplinas/eletivas" className="block w-full h-full">
+    <div
+      className={cn(
+        'relative h-full w-full rounded-lg border-2 p-2 text-center flex flex-col justify-center min-h-[5rem] transition-all duration-300',
+        isAttended
+          ? 'border-green-500 bg-green-50/50 hover:shadow-xl cursor-pointer'
+          : 'border-dashed border-muted bg-card/50 hover:shadow-lg hover:border-primary'
+      )}
+    >
+      <p className="font-semibold text-[10px] md:text-sm leading-tight text-muted-foreground">{name}</p>
+      {isAttended && (
+        <div className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-green-500 border-2 border-card" />
+      )}
+    </div>
+  </Link>
+);
+
+
 const FlowchartNode = ({
   discipline,
   attended,
@@ -18,21 +43,21 @@ const FlowchartNode = ({
     return <div className="h-20 w-full" />;
   }
 
-  // Handle electives
+  // Handle electives in a separate component if needed or specialized logic here.
   if (discipline.name.startsWith('Eletiva')) {
-    return (
-      <Link href="/disciplinas/eletivas" className="block w-full h-full">
-        <div
-          className={cn(
-            'relative h-full w-full rounded-lg border-2 border-dashed border-muted bg-card/50 p-2 text-center flex flex-col justify-center min-h-[5rem] transition-all duration-300 hover:shadow-lg hover:border-primary',
-            className
-          )}
-        >
-          <p className="font-semibold text-[10px] md:text-sm leading-tight text-muted-foreground">{discipline.name}</p>
-        </div>
-      </Link>
-    );
-  }
+     return (
+       <Link href="/disciplinas/eletivas" className="block w-full h-full">
+         <div
+           className={cn(
+             'relative h-full w-full rounded-lg border-2 border-dashed border-muted bg-card/50 p-2 text-center flex flex-col justify-center min-h-[5rem] transition-all duration-300 hover:shadow-lg hover:border-primary',
+             className
+           )}
+         >
+           <p className="font-semibold text-[10px] md:text-sm leading-tight text-muted-foreground">{discipline.name}</p>
+         </div>
+       </Link>
+     );
+   }
 
   if (!discipline.discipline_id) {
     const nodeContent = (
@@ -74,9 +99,11 @@ const EmptyCell = () => <div className="h-20 w-full" />;
 
 export default function Flowchart({ disciplines }: { disciplines: Discipline[] }) {
   const getDisciplineByCode = (code: string): Discipline | undefined => {
-    return disciplines.find((d) => d.name.startsWith(code + ' '));
+    return disciplines.find((d) => d.name.startsWith(code));
   };
   
+  const attendedEletivasCount = disciplines.filter(d => d.type === 'Eletiva' && d.attended === 'Sim').length;
+
   const prepareDiscipline = (code: string, displayName: string) => {
     const discipline = getDisciplineByCode(code);
     if (!discipline) return { name: displayName, code, discipline_id: undefined, displayName };
@@ -117,12 +144,10 @@ export default function Flowchart({ disciplines }: { disciplines: Discipline[] }
     'IME04-10833': prepareDiscipline('IME04-10833', 'Análise e Proj. de Sistemas'),
     'IME04-10835': prepareDiscipline('IME04-10835', 'Sistemas Operacionais I'),
     'IME04-10836': prepareDiscipline('IME04-10836', 'Arquitetura de Computadores II'),
-    'IME-Eletiva-Basica': { name: 'Eletiva Básica', code: 'IME' },
 
     'IME06-10837': prepareDiscipline('IME06-10837', 'Otimização Combinatória'),
     'IME04-10838': prepareDiscipline('IME04-10838', 'Banco de Dados II'),
     'IME04-10839': prepareDiscipline('IME04-10839', 'Interfaces Humano-Comp.'),
-    'IME-Eletiva-I': { name: 'Eletiva I', code: 'IME' },
     'IME04-10840': prepareDiscipline('IME04-10840', 'Sistemas Operacionais II'),
     'IME04-10841': prepareDiscipline('IME04-10841', 'Compiladores'),
     
@@ -133,11 +158,8 @@ export default function Flowchart({ disciplines }: { disciplines: Discipline[] }
     'IME04-10846': prepareDiscipline('IME04-10846', 'Redes de Computadores I'),
     'IME04-10847': prepareDiscipline('IME04-10847', 'Arq. Avançadas de Computadores'),
 
-    'IME-Eletiva-II': { name: 'Eletiva II', code: 'IME' },
-    'IME-Eletiva-III': { name: 'Eletiva III', code: 'IME' },
     'IME04-10848': prepareDiscipline('IME04-10848', 'Projeto Final'),
     'IME04-10849': prepareDiscipline('IME04-10849', 'Sistemas Distribuidos'),
-    'IME-Eletiva-IV': { name: 'Eletiva IV', code: 'IME' },
   };
 
   const periods = [...Array(8)].map((_, i) => i + 1);
@@ -152,7 +174,7 @@ export default function Flowchart({ disciplines }: { disciplines: Discipline[] }
                     <div key={periodIndex} className="flex flex-col items-center space-y-2 md:space-y-4 flex-1 min-w-0">
                         <h3 className="text-sm md:text-lg font-bold whitespace-nowrap">{periodIndex}º Período</h3>
                         <div className="flex flex-col space-y-2 md:space-y-4 w-full">
-                            {renderPeriod(periodIndex, disciplineMap)}
+                            {renderPeriod(periodIndex, disciplineMap, attendedEletivasCount)}
                         </div>
                     </div>
                 ))}
@@ -163,7 +185,7 @@ export default function Flowchart({ disciplines }: { disciplines: Discipline[] }
 }
 
 
-const renderPeriod = (periodIndex: number, disciplineMap: any) => {
+const renderPeriod = (periodIndex: number, disciplineMap: any, attendedEletivasCount: number) => {
     switch (periodIndex) {
         case 1:
             return (
@@ -222,7 +244,7 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
                     <FlowchartNode discipline={disciplineMap['IME04-10833']} />
                     <FlowchartNode discipline={disciplineMap['IME04-10835']} />
                     <FlowchartNode discipline={disciplineMap['IME04-10836']} />
-                    <FlowchartNode discipline={disciplineMap['IME-Eletiva-Basica']} />
+                    <EletivaNode name="Eletiva Básica" isAttended={attendedEletivasCount >= 1} />
                 </>
             );
         case 6:
@@ -231,7 +253,7 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
                     <FlowchartNode discipline={disciplineMap['IME06-10837']} />
                     <FlowchartNode discipline={disciplineMap['IME04-10838']} />
                     <FlowchartNode discipline={disciplineMap['IME04-10839']} />
-                    <FlowchartNode discipline={disciplineMap['IME-Eletiva-I']} />
+                    <EletivaNode name="Eletiva I" isAttended={attendedEletivasCount >= 2} />
                     <FlowchartNode discipline={disciplineMap['IME04-10840']} />
                     <FlowchartNode discipline={disciplineMap['IME04-10841']} />
                     <EmptyCell />
@@ -252,11 +274,11 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
         case 8:
             return (
                 <>
-                    <FlowchartNode discipline={disciplineMap['IME-Eletiva-II']} />
-                    <FlowchartNode discipline={disciplineMap['IME-Eletiva-III']} />
+                    <EletivaNode name="Eletiva II" isAttended={attendedEletivasCount >= 3} />
+                    <EletivaNode name="Eletiva III" isAttended={attendedEletivasCount >= 4} />
                     <FlowchartNode discipline={disciplineMap['IME04-10848']} />
                     <FlowchartNode discipline={disciplineMap['IME04-10849']} />
-                    <FlowchartNode discipline={disciplineMap['IME-Eletiva-IV']} />
+                    <EletivaNode name="Eletiva IV" isAttended={attendedEletivasCount >= 5} />
                     <EmptyCell />
                     <EmptyCell />
                 </>
@@ -265,3 +287,5 @@ const renderPeriod = (periodIndex: number, disciplineMap: any) => {
             return null;
     }
 }
+
+    
