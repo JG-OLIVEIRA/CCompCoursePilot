@@ -3,9 +3,10 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { AlertCircle, ArrowLeft } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 async function getDisciplineDetails(id: string): Promise<Discipline | null> {
   try {
@@ -16,11 +17,10 @@ async function getDisciplineDetails(id: string): Promise<Discipline | null> {
       throw new Error(`Falha ao buscar detalhes da disciplina: ${res.statusText}`);
     }
     const data = await res.json();
-     // The API returns the name with code, so we process it here
-     const nameParts = data.name.split(' ');
-     const code = nameParts.shift() || '';
-     const name = nameParts.join(' ');
-     const department = code.split('-')[0] || 'Unknown';
+    const nameParts = data.name.split(' ');
+    const code = nameParts.shift() || '';
+    const name = nameParts.join(' ');
+    const department = code.split('-')[0] || 'Unknown';
     return { ...data, name, code, department };
   } catch (error) {
     console.error(error);
@@ -28,8 +28,31 @@ async function getDisciplineDetails(id: string): Promise<Discipline | null> {
   }
 }
 
+async function getDisciplines(): Promise<Discipline[]> {
+  try {
+    const res = await fetch('https://uerj-scraping-app.onrender.com/disciplines', {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) throw new Error('Falha ao buscar disciplinas');
+    const data: Omit<Discipline, 'code' | 'department'>[] = await res.json();
+    return data.map((discipline) => {
+      const nameParts = discipline.name.split(' ');
+      const code = nameParts.shift() || '';
+      const name = nameParts.join(' ');
+      const department = code.split('-')[0] || 'Unknown';
+      return { ...discipline, name, code, department, discipline_id: discipline.discipline_id };
+    });
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 export default async function DisciplineDetailPage({ params }: { params: { id: string } }) {
-  const discipline = await getDisciplineDetails(params.id);
+  const [discipline, allDisciplines] = await Promise.all([
+    getDisciplineDetails(params.id),
+    getDisciplines(),
+  ]);
 
   if (!discipline) {
     return (
@@ -45,16 +68,25 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     );
   }
 
+  const checkRequirementStatus = (description: string) => {
+    const descriptions = description.split(' ou ');
+    return descriptions.some(desc => {
+      const reqCode = desc.split(' ')[0];
+      const reqDiscipline = allDisciplines.find((d) => d.code === reqCode);
+      return reqDiscipline?.attended === 'Sim';
+    });
+  };
+
   return (
     <main className="container mx-auto px-4 py-8 md:py-12">
-        <div className="mb-8">
-            <Link href="/" passHref>
-                <Button variant="outline">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Voltar para a Grade
-                </Button>
-            </Link>
-        </div>
+      <div className="mb-8">
+        <Link href="/" passHref>
+          <Button variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar para a Grade
+          </Button>
+        </Link>
+      </div>
       <Card>
         <CardHeader>
           <div className="flex justify-between items-start">
@@ -65,55 +97,69 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
               </p>
             </div>
             <Badge variant={discipline.attended === 'Sim' ? 'default' : 'secondary'} className={discipline.attended === 'Sim' ? 'bg-green-600' : ''}>
-                {discipline.attended === 'Sim' ? 'Cursada' : 'Não Cursada'}
+              {discipline.attended === 'Sim' ? 'Cursada' : 'Não Cursada'}
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-8 pt-6">
-            {discipline.requirements && discipline.requirements.length > 0 && (
-                <div>
-                <h3 className="text-xl font-semibold mb-4">Requisitos</h3>
-                <ul className="list-disc pl-5 space-y-2">
-                    {discipline.requirements.map((req, index) => (
-                    <li key={index}>
-                        <Badge variant={req.type === 'Pré-Requisito' ? 'destructive' : 'secondary'} className="mr-2">
-                        {req.type}
-                        </Badge>
-                        <span>{req.description}</span>
+          {discipline.requirements && discipline.requirements.length > 0 && (
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Requisitos</h3>
+              <ul className="list-none pl-0 space-y-3">
+                {discipline.requirements.map((req, index) => {
+                  const isFulfilled = checkRequirementStatus(req.description);
+                  return (
+                    <li key={index} className="flex items-center gap-3 p-3 rounded-md bg-muted/50">
+                      <Badge variant={req.type === 'Pré-Requisito' ? 'destructive' : 'secondary'}>{req.type}</Badge>
+                      <span className="flex-grow">{req.description}</span>
+                      <div className="flex items-center gap-2">
+                        {isFulfilled ? (
+                          <>
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                            <span className="text-sm font-medium text-green-600">Cumprido</span>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="h-5 w-5 text-red-500" />
+                            <span className="text-sm font-medium text-red-600">Não Cumprido</span>
+                          </>
+                        )}
+                      </div>
                     </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          {discipline.classes && discipline.classes.length > 0 && (
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Turmas Disponíveis</h3>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Turma</TableHead>
+                      <TableHead>Professor</TableHead>
+                      <TableHead>Horário</TableHead>
+                      <TableHead>Vagas Ofertadas</TableHead>
+                      <TableHead>Vagas Ocupadas</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {discipline.classes.map((cls) => (
+                      <TableRow key={cls.number}>
+                        <TableCell>{cls.number}</TableCell>
+                        <TableCell>{cls.teacher}</TableCell>
+                        <TableCell>{cls.times}</TableCell>
+                        <TableCell>{cls.offered_uerj}</TableCell>
+                        <TableCell>{cls.occupied_uerj}</TableCell>
+                      </TableRow>
                     ))}
-                </ul>
-                </div>
-            )}
-            {discipline.classes && discipline.classes.length > 0 && (
-                <div>
-                    <h3 className="text-xl font-semibold mb-4">Turmas Disponíveis</h3>
-                    <div className="overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                <TableHead>Turma</TableHead>
-                                <TableHead>Professor</TableHead>
-                                <TableHead>Horário</TableHead>
-                                <TableHead>Vagas Ofertadas</TableHead>
-                                <TableHead>Vagas Ocupadas</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {discipline.classes.map((cls) => (
-                                <TableRow key={cls.number}>
-                                    <TableCell>{cls.number}</TableCell>
-                                    <TableCell>{cls.teacher}</TableCell>
-                                    <TableCell>{cls.times}</TableCell>
-                                    <TableCell>{cls.offered_uerj}</TableCell>
-                                    <TableCell>{cls.occupied_uerj}</TableCell>
-                                </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </div>
-            )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </main>
