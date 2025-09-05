@@ -71,7 +71,7 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
   const checkRequirementStatus = (description: string) => {
     const descriptions = description.split(' ou ');
     return descriptions.some(desc => {
-      const reqCode = desc.split(' ')[0];
+      const reqCode = desc.trim().split(' ')[0];
       const reqDiscipline = allDisciplines.find((d) => d.code === reqCode);
       return reqDiscipline?.attended === 'Sim';
     });
