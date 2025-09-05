@@ -15,8 +15,12 @@ interface DisciplineDetailDialogProps {
   onClose: () => void;
 }
 
+interface DisciplineDetails extends Discipline {
+    name: string;
+}
+
 export function DisciplineDetailDialog({ discipline, isOpen, onClose }: DisciplineDetailDialogProps) {
-  const [details, setDetails] = useState<Discipline | null>(null);
+  const [details, setDetails] = useState<DisciplineDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +35,10 @@ export function DisciplineDetailDialog({ discipline, isOpen, onClose }: Discipli
             throw new Error('Falha ao buscar detalhes da disciplina');
           }
           const data = await res.json();
-          setDetails(data);
+          // The API returns the name with code, so we process it here
+          const nameParts = data.name.split(' ');
+          nameParts.shift(); // remove code
+          setDetails({ ...data, name: nameParts.join(' ') });
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Ocorreu um erro desconhecido');
         } finally {
@@ -61,7 +68,7 @@ export function DisciplineDetailDialog({ discipline, isOpen, onClose }: Discipli
               <div className="text-destructive">{error}</div>
             ) : details ? (
               <>
-                {details.requirements.length > 0 && (
+                {details.requirements && details.requirements.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Requisitos</h3>
                     <ul className="list-disc pl-5 space-y-1">
@@ -76,7 +83,7 @@ export function DisciplineDetailDialog({ discipline, isOpen, onClose }: Discipli
                     </ul>
                   </div>
                 )}
-                {details.classes.length > 0 && (
+                {details.classes && details.classes.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Turmas Disponíveis</h3>
                     <Table>
