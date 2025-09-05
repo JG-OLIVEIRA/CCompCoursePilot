@@ -28,25 +28,22 @@ async function getDisciplineDetails(id: string): Promise<Discipline | null> {
   }
 }
 
-async function getDisciplines(): Promise<Discipline[]> {
+async function getMultipleDisciplines(ids: string[]): Promise<Discipline[]> {
+  if (ids.length === 0) return [];
   try {
-    const res = await fetch('https://uerj-scraping-app.onrender.com/disciplines', {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) throw new Error('Falha ao buscar disciplinas');
-    const data: Omit<Discipline, 'code' | 'department'>[] = await res.json();
-    return data.map((discipline) => {
-      const nameParts = discipline.name.split(' ');
-      const code = nameParts[0] || '';
-      const name = discipline.name;
-      const department = code.split('-')[0] || 'Unknown';
-      return { ...discipline, name, code, department, discipline_id: discipline.discipline_id };
-    });
+    const results = await Promise.all(
+      ids.map(id => 
+        fetch(`https://uerj-scraping-app.onrender.com/disciplines/${id}`, { next: { revalidate: 3600 } })
+        .then(res => res.ok ? res.json() : null)
+      )
+    );
+    return results.filter(Boolean) as Discipline[];
   } catch (error) {
-    console.error(error);
+    console.error('Falha ao buscar múltiplas disciplinas:', error);
     return [];
   }
 }
+
 
 function toTitleCase(str: string): string {
   if (!str) return '';
@@ -95,10 +92,7 @@ function formatTimes(times: string) {
 }
 
 export default async function DisciplineDetailPage({ params }: { params: { id: string } }) {
-  const [discipline, allDisciplines] = await Promise.all([
-    getDisciplineDetails(params.id),
-    getDisciplines(),
-  ]);
+  const discipline = await getDisciplineDetails(params.id);
 
   if (!discipline) {
     return (
@@ -114,19 +108,19 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     );
   }
 
+  const requirementCodes = discipline.requirements?.flatMap(req => req.description.match(/[A-Z]{3}\d{2}-\d{5}/g) || []) || [];
+  const requiredDisciplines = await getMultipleDisciplines(requirementCodes);
+  
   const checkRequirementStatus = (description: string) => {
-    // Regex to find all discipline codes (e.g., IME01-12345) in the description string.
     const codeRegex = /[A-Z]{3}\d{2}-\d{5}/g;
-    const requiredCodes = description.match(codeRegex);
+    const requiredCodesInDesc = description.match(codeRegex);
 
-    if (!requiredCodes || requiredCodes.length === 0) {
-      // If no codes are found, we can't determine status, assume not fulfilled for safety.
+    if (!requiredCodesInDesc || requiredCodesInDesc.length === 0) {
       return false;
     }
     
-    // Check if at least one of the required disciplines has been attended.
-    return requiredCodes.some(reqCode => {
-        const reqDiscipline = allDisciplines.find((d) => d.name.startsWith(reqCode + ' '));
+    return requiredCodesInDesc.some(reqCode => {
+        const reqDiscipline = requiredDisciplines.find((d) => d.name.startsWith(reqCode));
         return reqDiscipline?.attended === 'Sim';
     });
   };
