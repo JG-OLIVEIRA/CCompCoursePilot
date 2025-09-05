@@ -26,7 +26,7 @@ export function DisciplineDetailDialog({ discipline, isOpen, onClose }: Discipli
         setIsLoading(true);
         setError(null);
         try {
-          const res = await fetch(`https://uerj-scraping-app.onrender.com/disciplines/${discipline._id}`);
+          const res = await fetch(`https://uerj-scraping-app.onrender.com/disciplines/${discipline.discipline_id}`);
           if (!res.ok) {
             throw new Error('Falha ao buscar detalhes da disciplina');
           }
@@ -40,7 +40,7 @@ export function DisciplineDetailDialog({ discipline, isOpen, onClose }: Discipli
       };
       fetchDetails();
     }
-  }, [isOpen, discipline._id]);
+  }, [isOpen, discipline.discipline_id]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
