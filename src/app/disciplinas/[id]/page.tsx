@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { RequirementLink } from '@/components/RequirementLink';
+import { getDisciplineMap, getDisciplines } from '@/lib/discipline-utils';
 
 async function getDisciplineDetails(id: string): Promise<Discipline | null> {
   try {
@@ -19,10 +20,9 @@ async function getDisciplineDetails(id: string): Promise<Discipline | null> {
     }
     const data = await res.json();
     const nameParts = data.name.split(' ');
-    const code = nameParts.shift() || '';
-    const name = data.name; // Use the full name from the API
-    const department = code.split('-')[0] || 'Unknown';
-    return { ...data, name, code, department };
+    const code = nameParts[0] || '';
+    // Use the full name from the API
+    return { ...data, name: data.name, code, department: code.split('-')[0] || 'Unknown' };
   } catch (error) {
     console.error(error);
     return null;
@@ -94,6 +94,7 @@ function formatTimes(times: string) {
 
 export default async function DisciplineDetailPage({ params }: { params: { id: string } }) {
   const discipline = await getDisciplineDetails(params.id);
+  const disciplineMap = await getDisciplineMap();
 
   if (!discipline) {
     return (
@@ -109,32 +110,34 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     );
   }
 
-  const requirementCodes = discipline.requirements?.flatMap(req => req.description.match(/[A-Z]{3}\d{2}-\d{5}/g) || []) || [];
-  const requiredDisciplines = await getMultipleDisciplines(requirementCodes);
+  const requirementDisciplineIds = discipline.requirements?.flatMap(req => {
+      const codes = req.description.match(/[A-Z]{3}\d{2}-\d{5}/g) || [];
+      return codes.map(code => disciplineMap[code]).filter(Boolean);
+    }) || [];
+
+  const requiredDisciplines = await getMultipleDisciplines(requirementDisciplineIds);
   
   const checkRequirementStatus = (description: string) => {
     const codeRegex = /[A-Z]{3}\d{2}-\d{5}/g;
     const requiredCodesInDesc = description.match(codeRegex);
 
     if (!requiredCodesInDesc || requiredCodesInDesc.length === 0) {
-      // If no specific discipline code is mentioned, we can't determine fulfillment status
-      // This could be for requirements like "Credit lock"
       return false;
     }
     
-    // For 'E' type (AND), all must be fulfilled
-    // For 'OU' type (OR), at least one must be fulfilled
     const isAndRequirement = description.includes(' E ');
 
-    const fulfilledCodes = requiredCodesInDesc.map(reqCode => {
-        const reqDiscipline = requiredDisciplines.find((d) => d.name.startsWith(reqCode));
+    const fulfilledStatuses = requiredCodesInDesc.map(reqCode => {
+        const reqDisciplineId = disciplineMap[reqCode];
+        if (!reqDisciplineId) return false;
+        const reqDiscipline = requiredDisciplines.find((d) => d.discipline_id === reqDisciplineId);
         return reqDiscipline?.attended === 'Sim';
     });
 
     if (isAndRequirement) {
-        return fulfilledCodes.every(status => status);
+        return fulfilledStatuses.every(status => status);
     } else {
-        return fulfilledCodes.some(status => status);
+        return fulfilledStatuses.some(status => status);
     }
   };
 
@@ -177,7 +180,7 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
                     <li key={index} className="flex items-center gap-3 p-3 rounded-md bg-muted/50">
                       <Badge variant={req.type === 'Pré-Requisito' ? 'destructive' : 'secondary'}>{req.type}</Badge>
                       <div className="flex-grow">
-                        <RequirementLink description={req.description} />
+                        <RequirementLink description={req.description} disciplineMap={disciplineMap} />
                       </div>
                       {hasDisciplineCode && (
                         <div className="flex items-center gap-2">

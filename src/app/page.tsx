@@ -2,33 +2,12 @@ import type { Discipline } from '@/types/discipline';
 import ClientPage from './client-page';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { getDisciplineMap, getDisciplines } from '@/lib/discipline-utils';
 
-async function getDisciplines(): Promise<Discipline[]> {
-  try {
-    const res = await fetch('https://uerj-scraping-app.onrender.com/disciplines', {
-      next: { revalidate: 3600 }, // Revalidate every hour
-    });
-    if (!res.ok) {
-      throw new Error('Falha ao buscar disciplinas');
-    }
-    const data: Omit<Discipline, 'code' | 'department'>[] = await res.json();
-    
-    // The API does not provide a separate 'code' or 'department', so we extract it from the 'name'
-    return data.map((discipline) => {
-      const nameParts = discipline.name.split(' ');
-      const code = nameParts[0] || '';
-      const department = code.split('-')[0] || 'Unknown';
-      // Return the original name field as is, and also provide separated code and department
-      return { ...discipline, code, department };
-    });
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
 
 export default async function Home() {
   const disciplines = await getDisciplines();
+  const disciplineMap = await getDisciplineMap();
 
   if (disciplines.length === 0) {
     return (
@@ -46,7 +25,7 @@ export default async function Home() {
 
   return (
     <main>
-      <ClientPage disciplines={disciplines} />
+      <ClientPage disciplines={disciplines} disciplineMap={disciplineMap} />
     </main>
   );
 }

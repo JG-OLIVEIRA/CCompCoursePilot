@@ -5,8 +5,9 @@ import { DisciplineCard } from '@/components/DisciplineCard';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import type { DisciplineCodeMap } from '@/lib/discipline-utils';
 
-export default function ClientPage({ disciplines }: { disciplines: Discipline[] }) {
+export default function ClientPage({ disciplines, disciplineMap }: { disciplines: Discipline[], disciplineMap: DisciplineCodeMap }) {
   
   const groupedDisciplines = disciplines.reduce((acc, discipline) => {
     // We only want to show disciplines that have a numeric period on this page

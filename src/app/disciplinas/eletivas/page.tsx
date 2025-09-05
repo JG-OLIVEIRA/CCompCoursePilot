@@ -5,26 +5,7 @@ import { AlertCircle, ArrowLeft } from 'lucide-react';
 import { DisciplineCard } from '@/components/DisciplineCard';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-
-async function getDisciplines(): Promise<Discipline[]> {
-  try {
-    const res = await fetch('https://uerj-scraping-app.onrender.com/disciplines', {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) throw new Error('Falha ao buscar disciplinas');
-    const data: Omit<Discipline, 'code' | 'department'>[] = await res.json();
-    return data.map((discipline) => {
-      const nameParts = discipline.name.split(' ');
-      const code = nameParts[0] || '';
-      const name = nameParts.slice(1).join(' ');
-      const department = code.split('-')[0] || 'Unknown';
-      return { ...discipline, name: discipline.name, code, department, discipline_id: discipline.discipline_id };
-    });
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
+import { getDisciplines } from '@/lib/discipline-utils';
 
 export default async function EletivasPage() {
   const allDisciplines = await getDisciplines();
@@ -51,7 +32,7 @@ export default async function EletivasPage() {
         <Link href="/" passHref>
           <Button variant="outline">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar para o Fluxograma
+            Voltar para a Grade
           </Button>
         </Link>
       </div>
