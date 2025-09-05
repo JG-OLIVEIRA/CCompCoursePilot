@@ -9,7 +9,7 @@ import { getDisciplines } from '@/lib/discipline-utils';
 
 export default async function EletivasPage() {
   const allDisciplines = await getDisciplines();
-  const eletivas = allDisciplines.filter(d => d.type === 'Eletiva');
+  const eletivas = allDisciplines.filter(d => d.type.includes('Eletiva'));
 
   if (allDisciplines.length === 0) {
     return (
