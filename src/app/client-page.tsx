@@ -26,7 +26,7 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
         <div className="mb-4 inline-block rounded-full bg-primary p-4 text-primary-foreground">
           <BookCopy className="h-10 w-10" />
         </div>
-        <h1 className="font-headline text-4xl font-bold text-primary md:text-5xl">CoursePilot</h1>
+        <h1 className="font-headline text-4xl font-bold text-primary md:text-5xl">CCompCoursePilot</h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
           Your navigator for university courses. Search and filter through disciplines to find what
           you're looking for.
