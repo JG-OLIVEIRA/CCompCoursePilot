@@ -19,7 +19,7 @@ export function DisciplineCard({ discipline }: { discipline: Discipline }) {
           </div>
           <div className="flex items-center gap-3">
             <GraduationCap className="h-5 w-5 text-accent" />
-            <span>{discipline.credits} credits</span>
+            <span>{discipline.credits} créditos</span>
           </div>
           <div className="flex items-center gap-3">
             <Building2 className="h-5 w-5 text-accent" />

@@ -9,7 +9,7 @@ async function getDisciplines(): Promise<Discipline[]> {
       next: { revalidate: 3600 }, // Revalidate every hour
     });
     if (!res.ok) {
-      throw new Error('Failed to fetch disciplines');
+      throw new Error('Falha ao buscar disciplinas');
     }
     const data: Omit<Discipline, 'code' | 'department'>[] = await res.json();
     
@@ -35,9 +35,9 @@ export default async function Home() {
       <main className="flex min-h-screen items-center justify-center p-4">
         <Alert variant="destructive" className="max-w-md">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error Fetching Data</AlertTitle>
+          <AlertTitle>Erro ao Carregar Dados</AlertTitle>
           <AlertDescription>
-            Could not retrieve course information from the server. Please try again later.
+            Não foi possível obter as informações do curso do servidor. Por favor, tente novamente mais tarde.
           </AlertDescription>
         </Alert>
       </main>

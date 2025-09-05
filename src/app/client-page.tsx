@@ -28,8 +28,7 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
         </div>
         <h1 className="font-headline text-4xl font-bold text-primary md:text-5xl">CCompCoursePilot</h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-          Your navigator for university courses. Search and filter through disciplines to find what
-          you're looking for.
+          Seu navegador para cursos universitários. Pesquise e filtre as disciplinas para encontrar o que você procura.
         </p>
       </header>
 
@@ -39,22 +38,22 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search by discipline name..."
+              placeholder="Pesquisar por nome da disciplina..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 text-base"
-              aria-label="Search by name"
+              aria-label="Pesquisar por nome"
             />
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Filter by course code..."
+              placeholder="Filtrar por código do curso..."
               value={codeFilter}
               onChange={(e) => setCodeFilter(e.target.value)}
               className="pl-10 text-base"
-              aria-label="Filter by code"
+              aria-label="Filtrar por código"
             />
           </div>
         </div>
@@ -68,8 +67,8 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
         </div>
       ) : (
         <div className="rounded-lg bg-card px-6 py-16 text-center shadow-md">
-          <h2 className="font-headline text-2xl font-semibold">No Courses Found</h2>
-          <p className="mt-2 text-muted-foreground">Try adjusting your search or filter terms.</p>
+          <h2 className="font-headline text-2xl font-semibold">Nenhum Curso Encontrado</h2>
+          <p className="mt-2 text-muted-foreground">Tente ajustar seus termos de pesquisa ou filtro.</p>
         </div>
       )}
     </div>
