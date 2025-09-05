@@ -22,13 +22,12 @@ const FlowchartNode = ({
   return (
     <div
       className={cn(
-        'relative h-20 w-full rounded-lg border-2 border-primary bg-card p-2 text-center shadow-md flex flex-col justify-center flex-shrink',
+        'relative h-20 w-full rounded-lg border-2 border-primary bg-card p-2 text-center shadow-md flex flex-col justify-center flex-shrink-0',
         isAttended && 'border-green-500 bg-green-50/50',
         className
       )}
     >
       <p className="font-semibold text-[10px] md:text-sm leading-tight">{discipline.name}</p>
-      <p className="font-mono text-[8px] md:text-xs text-muted-foreground">{discipline.code}</p>
       {isAttended && (
         <div className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-green-500" />
       )}
