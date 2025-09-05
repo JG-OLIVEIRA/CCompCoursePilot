@@ -27,8 +27,8 @@ const FlowchartNode = ({
         className
       )}
     >
-      <p className="font-semibold text-xs md:text-sm">{discipline.name}</p>
-      <p className="font-mono text-[10px] md:text-xs text-muted-foreground">{discipline.code}</p>
+      <p className="font-semibold text-[10px] md:text-sm leading-tight">{discipline.name}</p>
+      <p className="font-mono text-[8px] md:text-xs text-muted-foreground">{discipline.code}</p>
       {isAttended && (
         <div className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-green-500" />
       )}
@@ -115,11 +115,11 @@ export default function Flowchart({ disciplines }: { disciplines: Discipline[] }
   const periods = [...Array(8)].map((_, i) => i + 1);
 
   return (
-    <div className="p-4 bg-card rounded-lg shadow-md mb-8">
+    <div className="p-4 bg-card rounded-lg shadow-md mb-8 overflow-x-auto">
         <h2 className="text-2xl font-bold text-center mb-2">Fluxograma do Curso de Ciência da Computação</h2>
         <h3 className="text-lg text-muted-foreground text-center mb-6">Unidade Responsável: Instituto de Matemática e Estatística</h3>
         
-        <div className="flex w-full">
+        <div className="flex w-full min-w-[1200px]">
             <div className="flex flex-1 space-x-1 md:space-x-2">
                 {periods.map((periodIndex) => (
                     <div key={periodIndex} className="flex flex-col items-center space-y-2 md:space-y-4 flex-1 min-w-0">
