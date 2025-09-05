@@ -6,7 +6,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AlertCircle, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { RequirementLink } from '@/components/RequirementLink';
 import { getDisciplineMap } from '@/lib/discipline-utils';
 
@@ -18,11 +17,10 @@ async function getDisciplineDetails(id: string): Promise<Discipline | null> {
     if (!res.ok) {
       throw new Error(`Falha ao buscar detalhes da disciplina: ${res.statusText}`);
     }
+    // The API returns the full discipline object, no need to manually add fields here
+    // as they are handled by the getDisciplines utility function when needed.
     const data = await res.json();
-    const code = data.name.split(' ')[0] || '';
-    // The API returns the full name, which includes the code.
-    // We just need to add the code and department fields.
-    return { ...data, code, department: code.split('-')[0] || 'Unknown' };
+    return data;
   } catch (error) {
     console.error(error);
     return null;
@@ -38,12 +36,8 @@ async function getMultipleDisciplines(ids: string[]): Promise<Discipline[]> {
         .then(res => res.ok ? res.json() : null)
       )
     );
-    // Add code and department to each discipline
-    return results.filter(Boolean).map(d => ({
-      ...d,
-      code: d.name.split(' ')[0] || '',
-      department: (d.name.split(' ')[0] || '').split('-')[0] || 'Unknown'
-    })) as Discipline[];
+    // The API returns the full discipline object.
+    return results.filter(Boolean) as Discipline[];
   } catch (error) {
     console.error('Falha ao buscar múltiplas disciplinas:', error);
     return [];
@@ -115,6 +109,10 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     );
   }
 
+  // The code is usually the first part of the name string
+  const disciplineCode = discipline.name.split(' ')[0] || '';
+  const disciplineName = discipline.name.replace(disciplineCode, '').trim();
+
   const requirementDisciplineIds = discipline.requirements?.flatMap(req => {
       const codes = req.description.match(/[A-Z]{3}\d{2}-\d{5}/g) || [];
       return codes.map(code => disciplineMap[code]).filter(Boolean);
@@ -136,7 +134,6 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
     const fulfilledStatuses = requiredCodesInDesc.map(reqCode => {
         const reqDisciplineId = disciplineMap[reqCode];
         if (!reqDisciplineId) return false;
-        // Since we fetched `requiredDisciplines` with their full data, we can find them here
         const reqDiscipline = requiredDisciplines.find((d) => d.discipline_id === reqDisciplineId);
         return reqDiscipline?.attended === 'Sim';
     });
@@ -147,8 +144,6 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
         return fulfilledStatuses.some(status => status);
     }
   };
-
-  const disciplineName = discipline.name.replace(discipline.code, '').trim();
 
   return (
     <main className="container mx-auto px-4 py-8 md:py-12">
@@ -164,7 +159,7 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-3xl font-bold mb-2">{discipline.code} - {disciplineName}</CardTitle>
+              <CardTitle className="text-3xl font-bold mb-2">{disciplineCode} - {disciplineName}</CardTitle>
               <p className="text-muted-foreground text-lg">
                 {discipline.type} - {discipline.credits} créditos - {discipline.total_hours} horas
               </p>
