@@ -30,7 +30,9 @@ export function DisciplineDetailDialog({ discipline, isOpen, onClose }: Discipli
         setIsLoading(true);
         setError(null);
         try {
-          const res = await fetch(`https://uerj-scraping-app.onrender.com/disciplines/${discipline.discipline_id}`);
+          // The API endpoint expects the numeric part of the discipline ID.
+          const numericId = discipline.discipline_id;
+          const res = await fetch(`https://uerj-scraping-app.onrender.com/disciplines/${numericId}`);
           if (!res.ok) {
             throw new Error('Falha ao buscar detalhes da disciplina');
           }
