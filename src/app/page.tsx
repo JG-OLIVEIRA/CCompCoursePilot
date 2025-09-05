@@ -11,8 +11,16 @@ async function getDisciplines(): Promise<Discipline[]> {
     if (!res.ok) {
       throw new Error('Failed to fetch disciplines');
     }
-    const data = await res.json();
-    return data;
+    const data: Omit<Discipline, 'code' | 'department'>[] = await res.json();
+    
+    // The API does not provide a separate 'code' or 'department', so we extract it from the 'name'
+    return data.map((discipline) => {
+      const nameParts = discipline.name.split(' ');
+      const code = nameParts.shift() || '';
+      const name = nameParts.join(' ');
+      const department = code.split('-')[0] || 'Unknown';
+      return { ...discipline, name, code, department };
+    });
   } catch (error) {
     console.error(error);
     return [];

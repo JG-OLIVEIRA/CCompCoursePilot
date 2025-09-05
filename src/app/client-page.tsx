@@ -63,7 +63,7 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
       {filteredDisciplines.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredDisciplines.map((discipline) => (
-            <DisciplineCard key={discipline.code} discipline={discipline} />
+            <DisciplineCard key={discipline.discipline_id} discipline={discipline} />
           ))}
         </div>
       ) : (
