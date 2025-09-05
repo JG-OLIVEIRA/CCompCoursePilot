@@ -3,12 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Barcode, GraduationCap, Building2, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export function DisciplineCard({ discipline, onClick }: { discipline: Discipline, onClick: () => void }) {
+export function DisciplineCard({ discipline }: { discipline: Discipline }) {
   const attended = discipline.attended === 'Sim';
 
   return (
     <Card
-      onClick={onClick}
       className={cn(
         'flex h-full flex-col rounded-lg border-transparent bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer',
         attended && 'opacity-60 hover:opacity-100'

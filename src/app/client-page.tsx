@@ -8,12 +8,11 @@ import { Search, BookCopy } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Flowchart from '@/components/Flowchart';
 import { Card, CardContent } from '@/components/ui/card';
-import { DisciplineDetailDialog } from '@/components/DisciplineDetailDialog';
+import Link from 'next/link';
 
 export default function ClientPage({ disciplines }: { disciplines: Discipline[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activePeriods, setActivePeriods] = useState<string[]>([]);
-  const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline | null>(null);
 
   const filteredDisciplines = useMemo(() => {
     return disciplines.filter((discipline) => {
@@ -62,14 +61,6 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
       { mandatoryCredits: 0, electiveCredits: 0 }
     );
   }, [disciplines]);
-
-  const handleDisciplineClick = (discipline: Discipline) => {
-    setSelectedDiscipline(discipline);
-  };
-
-  const handleDialogClose = () => {
-    setSelectedDiscipline(null);
-  };
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -132,7 +123,9 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
               <AccordionContent className="px-6 pb-6">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                   {groupedDisciplines[period].map((discipline) => (
-                    <DisciplineCard key={discipline.discipline_id} discipline={discipline} onClick={() => handleDisciplineClick(discipline)} />
+                    <Link key={discipline.discipline_id} href={`/disciplinas/${discipline.discipline_id}`} passHref>
+                      <DisciplineCard discipline={discipline} />
+                    </Link>
                   ))}
                 </div>
               </AccordionContent>
@@ -144,14 +137,6 @@ export default function ClientPage({ disciplines }: { disciplines: Discipline[] 
           <h2 className="font-headline text-2xl font-semibold">Nenhuma disciplina encontrada</h2>
           <p className="mt-2 text-muted-foreground">Tente ajustar seus termos de pesquisa ou filtro.</p>
         </div>
-      )}
-
-      {selectedDiscipline && (
-        <DisciplineDetailDialog
-          discipline={selectedDiscipline}
-          isOpen={!!selectedDiscipline}
-          onClose={handleDialogClose}
-        />
       )}
     </div>
   );
