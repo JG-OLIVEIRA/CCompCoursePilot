@@ -69,9 +69,16 @@ export default async function DisciplineDetailPage({ params }: { params: { id: s
   }
 
   const checkRequirementStatus = (description: string) => {
-    const descriptions = description.split(' ou ');
-    return descriptions.some(desc => {
-      const reqCode = desc.trim().split(' ')[0];
+    // Regex to find all discipline codes (e.g., IME01-12345) in the description string.
+    const codeRegex = /[A-Z]{3}\d{2}-\d{5}/g;
+    const requiredCodes = description.match(codeRegex);
+
+    if (!requiredCodes || requiredCodes.length === 0) {
+      return false; // No codes found in description, cannot determine status.
+    }
+
+    // Check if at least one of the required disciplines has been attended.
+    return requiredCodes.some(reqCode => {
       const reqDiscipline = allDisciplines.find((d) => d.code === reqCode);
       return reqDiscipline?.attended === 'Sim';
     });
